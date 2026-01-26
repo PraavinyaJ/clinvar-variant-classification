@@ -1,2 +1,111 @@
 # clinvar-variant-classification
-ML pipeline for ClinVar variant classification using curated annotation features and a TF-IDF baseline, with leakage checks, evaluation, and SYMBOL ablation.
+
+## Problem Statement
+
+Clinical variant interpretation is challenging due to conflicting annotations and heterogeneous feature types.
+This project builds and compares machine-learning models to classify conflicting ClinVar variants as pathogenic or benign using curated annotations and a simple text baseline.
+
+## Dataset
+
+Source:
+ClinVar Conflicting Variants Dataset (Kaggle)
+https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
+
+## Why this dataset is tricky
+
+-  Many ClinVar fields directly encode clinical assertions (e.g., `CLNSIG`, disease names, review status)
+- Benign variants substantially outnumber pathogenic ones.
+-  Numeric scores, categorical annotations, and free-text biological fields.
+
+## To address this:
+
+- Explicit leakage detection and removal was performed.
+- Balanced class weights were used.
+-Performance was evaluated using ROC-AUC and PR-AUC, not accuracy alone.
+
+## Approach:
+
+## Representation A — Curated Features
+
+- Numeric: `CADD_PHRED`, `CADD_RAW`, `LoFtool`, `BLOSUM62`, allele frequencies
+- Categorical: `Consequence`, `IMPACT`, `SYMBOL`
+- Preprocessing:
+
+  - Median imputation
+  - Robust scaling
+  - One hot encoding
+- Models:
+
+  -Random Forest (primary)
+  -Logistic Regression (baseline)
+
+## Representation B — Text Baseline
+
+- Character-level TF-IDF (2–4 grams)
+- Text constructed from: `REF`, `ALT`, `Codons`, `Amino_acids`, `Consequence`, `IMPACT`
+- Logistic Regression classifier
+
+## Ablation Study
+
+ Evaluated the effect of removing the `SYMBOL` (gene name) feature to test for gene-level shortcut learning.
+
+## Key Results
+
+## Model Performance (Test Set)
+
+| Model        | ROC-AUC  | PR-AUC   | Balanced Acc | F1   |
+| ------------ | -------- | -------- | ------------ | ---- |
+| RF (curated) |   0.78   |  0.50    | 0.64         | 0.45 |
+| LR (curated) | 0.73     | 0.43     | 0.60         | 0.40 |
+| LR (text)    | 0.57     | 0.30     | 0.52         | 0.28 |
+
+## Ablation (Random Forest)
+
+| Model            | ROC-AUC   | PR-AUC    |
+| ---------------- | --------- | --------- |
+| With `SYMBOL`    | 0.775     | 0.496     |
+| Without `SYMBOL` | 0.735     | 0.443     |
+
+Removing `SYMBOL` causes a clear drop in performance, suggesting reliance on gene-level priors.
+
+## Visual Results
+
+Saved in the `results/` folder:
+
+- Confusion matrix (Random Forest, threshold = 0.5)
+-  ROC curves (all models)
+-  Precision-Recall curves
+- Top-15 Random Forest feature importances
+
+## What I Learned
+
+- Curated biological annotations significantly outperform simple text baselines.
+- Random Forest captures non-linear interactions between variant features better than linear models.
+- Gene identity (`SYMBOL`) is a powerful but potentially leaky shortcut, highlighting the importance of ablation studies in biomedical ML.
+- I found it fascinating that the 'SYMBOL' feature acted as such a strong shortcut. It reminded me that in clinical settings, we should be careful not to let historical biases (like a gene being frequently studied) outweigh the actual biological evidence of a new variant.
+
+## Limitations
+
+- Results are based on a single stratified train/test split, so performance may vary with a different split.
+- No hyperparameter tuning or threshold optimization was performed, models mostly use default settings.
+- The SYMBOL feature may act as a shortcut (gene-level prior), which could inflate performance and limit generalization to unseen genes.
+
+## How to Run
+
+### 1. Install dependencies
+
+pip install -r requirements.txt
+
+### 2. Download dataset
+
+Download `clinvar_conflicting.csv` from Kaggle and place it in the project root.
+
+### 3. Run the notebook
+jupyter notebook clinvar_variant_classification.ipynb
+
+
+## Future work
+
+- To evaluate generalization by splitting train/test by gene (SYMBOL) rather than by random variants.
+- Optimize decision thresholds based on precision–recall trade offs rather than using a fixed 0.5 threshold.
+- Validate the model on a held-out ClinVar release or an external variant dataset to assess robustness.
