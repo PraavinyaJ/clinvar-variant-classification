@@ -57,8 +57,8 @@ https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
 
 # Ablation (Random Forest)
-| Model | ROC-AUC | PR-AUC | Balanced_Acc | F1 | Accuracy |
-|---    |         |---     |---       |---:|---:|
+| Model | ROC-AUC | PR-AUC | Balanced Acc | F1 | Accuracy |
+|---|---:|---:|---:|---:|---:|
 | RF (with SYMBOL) | 0.775 | 0.496 | 0.638 | 0.451 | 0.764 |
 | RF (no SYMBOL) | 0.735 | 0.443 | 0.594 | 0.365 | 0.744 |
 
