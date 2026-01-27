@@ -7,9 +7,7 @@ This project builds and compares machine-learning models to classify conflicting
 
 # Dataset
 
-Source:
-ClinVar Conflicting Variants Dataset (Kaggle)
-https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
+Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
 # Leakage Prevention: How did I ensure the model didn't cheat?
 
@@ -81,7 +79,7 @@ Saved in the `results/` folder:
 # How to Run
 
 1. Install dependencies- pip install -r requirements.txt
-2. Download dataset -Download `clinvar_conflicting.csv` from Kaggle and place it in the project root.
+2. Download dataset: `clinvar_conflicting.csv` from Kaggle and place it in the project root.
 3. Run the notebook- jupyter notebook clinvar_variant_classification.ipynb
 
 
