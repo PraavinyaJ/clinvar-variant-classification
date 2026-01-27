@@ -11,19 +11,28 @@ Source:
 ClinVar Conflicting Variants Dataset (Kaggle)
 https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
+# Leakage Prevention:How did I ensure the model didn't cheat?
+
+- Dropped fields that directly reflect clinical interpretations or review metadata (e.g., `CLNSIG*`, `CLNDN*`, `CLNREVSTAT`, etc.).
+- Removed additional text columns with obvious label tokens (e.g., “pathogenic”, “benign”, “uncertain significance”) when they appeared at non-trivial rates.
+- Fit all preprocessing on the training split only (median imputation, robust scaling, categorical mode fill, one-hot encoding).
+- Fit TF-IDF on training text only and applied it to test via `.transform()`.
+- Token-based leak scanning was done globally for convenience. A stricter variant would scan on train only and drop the same columns from both splits.
+
+
 ## Approach:
 
-## Representation A — Curated Features
+## Representation A
 
+# Curated Features
 - Numeric: `CADD_PHRED`, `CADD_RAW`, `LoFtool`, `BLOSUM62`, allele frequencies
 - Categorical: `Consequence`, `IMPACT`, `SYMBOL`
 - Preprocessing:
-
   - Median imputation
   - Robust scaling
   - One hot encoding
-- Models:
-
+    
+ # Models:
   -Random Forest (primary)
   -Logistic Regression (baseline)
 
@@ -56,21 +65,13 @@ https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
 Removing `SYMBOL` causes a clear drop in performance, suggesting reliance on gene-level priors.
 
-## Visual Results
+## Visuals
 
 Saved in the `results/` folder:
-
 - Confusion matrix (Random Forest, threshold = 0.5)
 -  ROC curves (all models)
 -  Precision-Recall curves
 - Top-15 Random Forest feature importances
-
-## What I Learned
-
-- Curated biological annotations significantly outperform simple text baselines.
-- Random Forest captures non-linear interactions between variant features better than linear models.
-- Gene identity (`SYMBOL`) is a powerful but potentially leaky shortcut, highlighting the importance of ablation studies in biomedical ML.
-- I found it fascinating that the 'SYMBOL' feature acted as such a strong shortcut. It reminded me that in clinical settings, we should be careful not to let historical biases (like a gene being frequently studied) outweigh the actual biological evidence of a new variant.
 
 ## Limitations
 
@@ -80,16 +81,9 @@ Saved in the `results/` folder:
 
 ## How to Run
 
-### 1. Install dependencies
-
-pip install -r requirements.txt
-
-### 2. Download dataset
-
-Download `clinvar_conflicting.csv` from Kaggle and place it in the project root.
-
-### 3. Run the notebook
-jupyter notebook clinvar_variant_classification.ipynb
+1. Install dependencies- pip install -r requirements.txt
+2. Download dataset -Download `clinvar_conflicting.csv` from Kaggle and place it in the project root.
+3. Run the notebook- jupyter notebook clinvar_variant_classification.ipynb
 
 
 ## Future work
