@@ -1,11 +1,11 @@
 # clinvar-variant-classification
 
-## Problem Statement
+# Problem Statement
 
 Clinical variant interpretation is challenging due to conflicting annotations and heterogeneous feature types.
 This project builds and compares machine-learning models to classify conflicting ClinVar variants as pathogenic or benign using curated annotations and a simple text baseline.
 
-## Dataset
+# Dataset
 
 Source:
 ClinVar Conflicting Variants Dataset (Kaggle)
@@ -20,9 +20,9 @@ https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 - Token-based leak scanning was done globally for convenience. A stricter variant would scan on train only and drop the same columns from both splits.
 
 
-## Approach:
+# Approach:
 
-## Representation A
+# Representation A
 
 # Curated Features
 - Numeric: `CADD_PHRED`, `CADD_RAW`, `LoFtool`, `BLOSUM62`, allele frequencies
@@ -36,36 +36,35 @@ https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
   -Random Forest (primary)
   -Logistic Regression (baseline)
 
-## Representation B — Text Baseline
+# Representation B — Text Baseline
 
 - Character-level TF-IDF (2–4 grams)
 - Text constructed from: `REF`, `ALT`, `Codons`, `Amino_acids`, `Consequence`, `IMPACT`
 - Logistic Regression classifier
 
-## Ablation Study
+# Ablation Study
 
  Evaluated the effect of removing the `SYMBOL` (gene name) feature to test for gene-level shortcut learning.
 
-## Key Results
+# Key Results
 
-## Model Performance (Test Set)
+# Model Performance (Test Set)
+| Model | ROC-AUC | PR-AUC | Balanced_Acc | F1 | Accuracy |
+|---|---:|---:|---:|---:|---:|
+| RF (curated) | 0.775 | 0.496 | 0.638 | 0.451 | 0.764 |
+| LR (curated) | 0.726 | 0.433 | 0.671 | 0.507 | 0.633 |
+| LR (text) | 0.568 | 0.297 | 0.542 | 0.384 | 0.508 |
 
-| Model        | ROC-AUC  | PR-AUC   | Balanced Acc | F1   |
-| ------------ | -------- | -------- | ------------ | ---- |
-| RF (curated) |   0.78   |  0.50    | 0.64         | 0.45 |
-| LR (curated) | 0.73     | 0.43     | 0.60         | 0.40 |
-| LR (text)    | 0.57     | 0.30     | 0.52         | 0.28 |
 
-## Ablation (Random Forest)
-
-| Model            | ROC-AUC   | PR-AUC    |
-| ---------------- | --------- | --------- |
-| With `SYMBOL`    | 0.775     | 0.496     |
-| Without `SYMBOL` | 0.735     | 0.443     |
+# Ablation (Random Forest)
+| Model | ROC-AUC | PR-AUC | Balanced_Acc | F1 | Accuracy |
+|---    |         |---     |---       |---:|---:|
+| RF (with SYMBOL) | 0.775 | 0.496 | 0.638 | 0.451 | 0.764 |
+| RF (no SYMBOL) | 0.735 | 0.443 | 0.594 | 0.365 | 0.744 |
 
 Removing `SYMBOL` causes a clear drop in performance, suggesting reliance on gene-level priors.
 
-## Visuals
+# Visuals
 
 Saved in the `results/` folder:
 - Confusion matrix (Random Forest, threshold = 0.5)
@@ -73,20 +72,20 @@ Saved in the `results/` folder:
 -  Precision-Recall curves
 - Top-15 Random Forest feature importances
 
-## Limitations
+# Limitations
 
 - Results are based on a single stratified train/test split, so performance may vary with a different split.
 - No hyperparameter tuning or threshold optimization was performed, models mostly use default settings.
 - The SYMBOL feature may act as a shortcut (gene-level prior), which could inflate performance and limit generalization to unseen genes.
 
-## How to Run
+# How to Run
 
 1. Install dependencies- pip install -r requirements.txt
 2. Download dataset -Download `clinvar_conflicting.csv` from Kaggle and place it in the project root.
 3. Run the notebook- jupyter notebook clinvar_variant_classification.ipynb
 
 
-## Future work
+# Future work
 
 - To evaluate generalization by splitting train/test by gene (SYMBOL) rather than by random variants.
 - Optimize decision thresholds based on precision–recall trade offs rather than using a fixed 0.5 threshold.
