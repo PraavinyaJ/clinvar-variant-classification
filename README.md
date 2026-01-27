@@ -11,7 +11,7 @@ Source:
 ClinVar Conflicting Variants Dataset (Kaggle)
 https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
-# Leakage Prevention:How did I ensure the model didn't cheat?
+# Leakage Prevention: How did I ensure the model didn't cheat?
 
 - Dropped fields that directly reflect clinical interpretations or review metadata (e.g., `CLNSIG*`, `CLNDN*`, `CLNREVSTAT`, etc.).
 - Removed additional text columns with obvious label tokens (e.g., “pathogenic”, “benign”, “uncertain significance”) when they appeared at non-trivial rates.
