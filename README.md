@@ -11,18 +11,6 @@ Source:
 ClinVar Conflicting Variants Dataset (Kaggle)
 https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
-## Why this dataset is tricky
-
--  Many ClinVar fields directly encode clinical assertions (e.g., `CLNSIG`, disease names, review status)
-- Benign variants substantially outnumber pathogenic ones.
--  Numeric scores, categorical annotations, and free-text biological fields.
-
-## To address this:
-
-- Explicit leakage detection and removal was performed.
-- Balanced class weights were used.
--Performance was evaluated using ROC-AUC and PR-AUC, not accuracy alone.
-
 ## Approach:
 
 ## Representation A — Curated Features
