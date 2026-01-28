@@ -9,10 +9,10 @@ This project builds and compares machine-learning models to classify conflicting
 
 Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
-# Clinical Significance
-- Clinical variant interpretation directly impacts patient diagnosis, risk assessment, and treatment decisions. Many variants encountered in practice are rare, newly discovered, or poorly characterized, making generalization beyond historically well-studied genes essential.
-- Models that rely heavily on gene identity can appear highly accurate on benchmark datasets but fail to generalize to variants in unseen or less studied genes. This creates a risk of overconfident predictions driven by historical knowledge rather than the biochemical or functional impact of the specific mutation.
-- This project explicitly examines this risk by evaluating gene-level shortcut learning, highlighting the importance of building models that learn variant-level signals rather than memorizing which genes are historically associated with disease.
+# Clinical Significance## Clinical Significance
+- Variant classification affects diagnosis and risk management, and many variants are rare or newly observed. This makes generalization beyond historically well studied genes essential.  
+- This project explicitly tests for gene-level shortcut learning (reliance on SYMBOL) to highlight how benchmark performance can be inflated by gene priors rather than variant-level biology.
+
 
 # Leakage Prevention
 
@@ -50,9 +50,9 @@ Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
  Evaluated the effect of removing the `SYMBOL` (gene name) feature to test for gene-level shortcut learning.
 
 # Gene-Level Shortcut Learning (Honest Critique)
-- The ablation study revealed that model performance drops substantially when the SYMBOL (gene name) feature is removed. This suggests that the model is partially memorizing which genes are historically pathogenic (e.g., ATM, BRCA2) rather than learning only the biochemical or functional impact of individual variants.
-- While gene identity can be informative in clinical practice, reliance on gene-level priors can inflate benchmark performance and limit generalization to variants in unseen or less studied genes. This highlights a key challenge in variant classification, distinguishing true variant level signal from historical annotation bias.
-- By explicitly testing and reporting this behavior, the project emphasizes the importance of evaluating generalization beyond known genes when developing clinical variant interpretation models.
+- Removing SYMBOL causes a clear performance drop, suggesting the model is using gene-level priors (e.g., historically pathogenic genes like ATM/BRCA2) in addition to variant level signals.  
+- While gene identity can be clinically informative, heavy reliance on it can inflate benchmark scores and reduce generalization to variants in unseen or less studied genes. This is a key failure mode in clinical ML that this project surfaces explicitly.
+
 
 # Key Results
 
@@ -81,20 +81,16 @@ Saved in the `results/` folder:
 - Top-15 Random Forest feature importances
 
 # Limitations
-
 - Results are based on a single stratified train/test split, so performance may vary with a different split.
 - No hyperparameter tuning or threshold optimization was performed, models mostly use default settings.
-- The SYMBOL feature may act as a shortcut (gene-level prior), which could inflate performance and limit generalization to unseen genes.
 
 # How to Run
-
 1. Install dependencies- pip install -r requirements.txt
 2. Download dataset: `clinvar_conflicting.csv` from Kaggle and place it in the project root.
 3. Run the notebook- jupyter notebook clinvar_variant_classification.ipynb
 
 
 # Future work
-
 - To evaluate generalization by splitting train/test by gene (SYMBOL) rather than by random variants.
 - Optimize decision thresholds based on precision–recall trade offs rather than using a fixed 0.5 threshold.
 - Validate the model on a held-out ClinVar release or an external variant dataset to assess robustness.
