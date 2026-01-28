@@ -9,8 +9,8 @@ This project builds and compares machine-learning models to classify conflicting
 
 Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
-# Clinical Significance## Clinical Significance
-- Variant classification affects diagnosis and risk management, and many variants are rare or newly observed. This makes generalization beyond historically well studied genes essential.  
+# Clinical Significance
+- Variant classification affects diagnosis and risk management, and many variants are rare or newly observed. This makes generalization beyond historically well-studied genes essential.  
 - This project explicitly tests for gene-level shortcut learning (reliance on SYMBOL) to highlight how benchmark performance can be inflated by gene priors rather than variant-level biology.
 
 
@@ -36,8 +36,8 @@ Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
   - One hot encoding
     
  # Models
-  -Random Forest (primary)
-  -Logistic Regression (baseline)
+  - Random Forest (primary)
+  - Logistic Regression (baseline)
 
 # Representation B — Text Baseline
 
