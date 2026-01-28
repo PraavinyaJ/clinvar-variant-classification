@@ -9,7 +9,12 @@ This project builds and compares machine-learning models to classify conflicting
 
 Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 
-# Leakage Prevention: How did I ensure the model didn't cheat?
+# Clinical Significance
+- Clinical variant interpretation directly impacts patient diagnosis, risk assessment, and treatment decisions. Many variants encountered in practice are rare, newly discovered, or poorly characterized, making generalization beyond historically well-studied genes essential.
+- Models that rely heavily on gene identity can appear highly accurate on benchmark datasets but fail to generalize to variants in unseen or less studied genes. This creates a risk of overconfident predictions driven by historical knowledge rather than the biochemical or functional impact of the specific mutation.
+- This project explicitly examines this risk by evaluating gene-level shortcut learning, highlighting the importance of building models that learn variant-level signals rather than memorizing which genes are historically associated with disease.
+
+# Leakage Prevention
 
 - Dropped fields that directly reflect clinical interpretations or review metadata (e.g., `CLNSIG*`, `CLNDN*`, `CLNREVSTAT`, etc.).
 - Removed additional text columns with obvious label tokens (e.g., “pathogenic”, “benign”, “uncertain significance”) when they appeared at non-trivial rates.
@@ -18,7 +23,7 @@ Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 - Token-based leak scanning was done globally for convenience. A stricter variant would scan on train only and drop the same columns from both splits.
 
 
-# Approach:
+# Approach
 
 # Representation A
 
@@ -30,7 +35,7 @@ Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
   - Robust scaling
   - One hot encoding
     
- # Models:
+ # Models
   -Random Forest (primary)
   -Logistic Regression (baseline)
 
@@ -43,6 +48,11 @@ Source file : https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
 # Ablation Study
 
  Evaluated the effect of removing the `SYMBOL` (gene name) feature to test for gene-level shortcut learning.
+
+# Gene-Level Shortcut Learning (Honest Critique)
+- The ablation study revealed that model performance drops substantially when the SYMBOL (gene name) feature is removed. This suggests that the model is partially memorizing which genes are historically pathogenic (e.g., ATM, BRCA2) rather than learning only the biochemical or functional impact of individual variants.
+- While gene identity can be informative in clinical practice, reliance on gene-level priors can inflate benchmark performance and limit generalization to variants in unseen or less studied genes. This highlights a key challenge in variant classification, distinguishing true variant level signal from historical annotation bias.
+- By explicitly testing and reporting this behavior, the project emphasizes the importance of evaluating generalization beyond known genes when developing clinical variant interpretation models.
 
 # Key Results
 
