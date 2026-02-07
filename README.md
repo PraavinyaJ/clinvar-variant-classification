@@ -1,3 +1,107 @@
+# ClinVar Variant Classification  
+### Leakage Controls & Gene-Prior Ablation
+
+## SUMMARY
+- **Goal:** Classify conflicting ClinVar variants as **pathogenic vs benign**.
+- **Data:** Kaggle ClinVar conflicting variants (**~65k variants**).
+- **Best model:** Random Forest on curated annotations (Test **ROC-AUC 0.775**, **PR-AUC 0.496**).
+- **Key contribution:** Explicit **gene-prior (SYMBOL) ablation** to test shortcut learning.
+- **Takeaway:** Strong performance partly relies on gene identity, highlighting a real clinical ML failure mode.
+
+---
+
+## Problem Statement
+Clinical variant interpretation is challenging due to conflicting annotations, heterogeneous feature types, and strong historical biases toward well-studied genes.  
+This project builds and compares machine-learning models to classify **conflicting ClinVar variants** as pathogenic or benign using curated annotations and a simple text baseline.
+
+---
+
+## Dataset
+- Source: Kaggle ClinVar Conflicting Variants  
+  https://www.kaggle.com/datasets/kevinarvai/clinvar-conflicting
+
+---
+
+## Approach (overview)
+
+### Representation A — Curated Features
+- **Numeric:** `CADD_PHRED`, `CADD_RAW`, `LoFtool`, `BLOSUM62`, allele frequencies
+- **Categorical:** `Consequence`, `IMPACT`, `SYMBOL`
+- **Preprocessing (fit on train only):**
+  - Median imputation
+  - Robust scaling
+  - One-hot encoding
+
+**Models**
+- Random Forest (primary)
+- Logistic Regression (baseline)
+
+### Representation B — Text Baseline
+- Character-level TF-IDF (2–4 grams)
+- Text from: `REF`, `ALT`, `Codons`, `Amino_acids`, `Consequence`, `IMPACT`
+- Logistic Regression classifier
+
+---
+
+## Leakage Prevention
+- Dropped fields directly encoding clinical interpretation or review metadata (e.g., `CLNSIG*`, `CLNDN*`, `CLNREVSTAT`).
+- Removed text columns containing explicit label tokens (“pathogenic”, “benign”, etc.).
+- Fit all preprocessing **only on the training split**.
+- Fit TF-IDF on training text only; applied to test via `.transform()`.
+- Token-based leak scanning performed globally for convenience (noted as a limitation).
+
+---
+
+## Key Results (Test Set)
+
+| Model | ROC-AUC | PR-AUC | Balanced Acc | F1 | Accuracy |
+|---|---:|---:|---:|---:|---:|
+| RF (curated) | 0.775 | 0.496 | 0.638 | 0.451 | 0.764 |
+| LR (curated) | 0.726 | 0.433 | 0.671 | 0.507 | 0.633 |
+| LR (text) | 0.568 | 0.297 | 0.542 | 0.384 | 0.508 |
+
+**Interpretation:** Curated biological annotations substantially outperform a lightweight text baseline.
+
+---
+
+## Gene-Level Shortcut Learning (Core Insight)
+
+To test whether the model relies on **gene-level priors**, I ran an explicit ablation removing the `SYMBOL` feature.
+
+### Ablation Results (Random Forest)
+
+| Model | ROC-AUC | PR-AUC | Balanced Acc | F1 | Accuracy |
+|---|---:|---:|---:|---:|---:|
+| RF (with SYMBOL) | 0.775 | 0.496 | 0.638 | 0.451 | 0.764 |
+| RF (no SYMBOL) | 0.735 | 0.443 | 0.594 | 0.365 | 0.744 |
+
+**Takeaway:**  
+Removing `SYMBOL` causes a clear performance drop, indicating reliance on **gene-level priors** (e.g., historically pathogenic genes like *ATM*, *BRCA2*).  
+While gene identity can be clinically informative, heavy reliance on it can inflate benchmark scores and reduce generalization to **unseen or less-studied genes**.
+
+---
+
+## Visuals
+Saved in the `results/` folder:
+- Confusion matrix (Random Forest, threshold = 0.5)
+- ROC curves (all models)
+- Precision–Recall curves
+- Top-15 Random Forest feature importances
+
+---
+
+## Limitations
+- Single stratified train/test split; results may vary across splits.
+- No hyperparameter tuning or threshold optimization.
+- Token-based leakage scan was global rather than train-only.
+- Gene-level priors may inflate performance and limit generalization.
+
+---
+
+## How to Run
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
 # ClinVar Variant Classification with Leakage Controls & Gene-Prior Ablation
 
 # Problem Statement
@@ -94,3 +198,4 @@ Saved in the `results/` folder:
 - To evaluate generalization by splitting train/test by gene (SYMBOL) rather than by random variants.
 - Optimize decision thresholds based on precision–recall trade offs rather than using a fixed 0.5 threshold.
 - Validate the model on a held-out ClinVar release or an external variant dataset to assess robustness.
+
