@@ -1,7 +1,7 @@
 # ClinVar Variant Classification  
 ### Leakage Controls & Gene-Prior Ablation
 
-## SUMMARY
+## Summary
 - **Goal:** Classify conflicting ClinVar variants as **pathogenic vs benign**.
 - **Data:** Kaggle ClinVar conflicting variants (**~65k variants**).
 - **Best model:** Random Forest on curated annotations (Test **ROC-AUC 0.775**, **PR-AUC 0.496**).
